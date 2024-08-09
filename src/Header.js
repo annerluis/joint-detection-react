@@ -4,7 +4,7 @@ function Header() {
     return (
       <header className="header">
         <div className="heading-text" style={{textAlign: "center"}}>
-            <h1>Automatic Joint Detection and SvH Scoring</h1>
+            <h1>Automatic Joint Detection</h1>
         </div>
       </header>
     );
