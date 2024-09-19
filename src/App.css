@@ -17,7 +17,7 @@ p {margin: 25px 25px 25px 25px;}
 .header {
   text-align: center;
   background-color: #E4E4E4;
-  padding-left: 28%;
+  padding-left: 35%;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -45,13 +45,18 @@ p {margin: 25px 25px 25px 25px;}
 
 .column {
   flex: 1;
+  align-items: center;
   padding: 10px;
   margin: 5px;
   background-color: #f4f4f4;
-  width: 33%
+  width: 50%
 }
 
 .column1 {
+  flex: 1;
+  padding: 10px;
+  margin: 5px;
+  background-color: #f4f4f4;
   width: 50%
 }
 
@@ -63,7 +68,8 @@ p {margin: 25px 25px 25px 25px;}
 }
 
 .processed-image {
-  width: 100%;
+  max-width: 60%;
+  align-items: left;
 }
 
 .spinner {
