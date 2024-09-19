@@ -18,7 +18,7 @@ function Score(){//takes in output1 from joint detection and converts each joint
         setJointsInfo(additionalInfo);
         setOgImage(image);
     }
-
+/*
     const cropImageNow = (joint, image) => {
         const canvas = document.createElement('canvas');
         const scaleX = image.naturalWidth / image.width;
@@ -49,8 +49,10 @@ function Score(){//takes in output1 from joint detection and converts each joint
         const base64Image = canvas.toDataURL('image/jpeg');
         return(base64Image);
     };
+    */
 
     const scoreButton = async () => {
+        setJointCropInfo(UploadImage.additionalInfo,UploadImage.image)
         if(UploadImage.image != null){
             console.log(UploadImage.image)
         }

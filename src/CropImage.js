@@ -13,6 +13,7 @@ import './App.css';
  */
 
 function CropImage(joint,base64Image){
+/*
     return new Promise((resolve, reject) => {
         console.log(joint)
         const image = new Image();
@@ -43,6 +44,6 @@ function CropImage(joint,base64Image){
             reject(new Error('Failed to load image during crop'));
         }
         
-    });
+    });*/
 }
 export default CropImage;
