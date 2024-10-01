@@ -8,22 +8,29 @@ import Instructions from './Instructions.js';
 
 
 function App() {
-  const [result, setResult] = useState(null);
+  const [image, setImage] = useState(null);
+  const [jointData, setJointData] = useState(null);
+ 
 
-  const handleUpload = (processedImage) => {
-    setResult(processedImage);
+  const handleUpload = (originalImage) => {
+    setImage(originalImage);
   };
+
+  const handleJointData = (data) => {
+    setJointData(data);
+  };
+
   return (
     <div className="App">
       <Header />
       <Instructions/>
+      <img src={image}></img>
+      <p>{JSON.stringify(jointData)}</p>
       <div className='container'>
         <div className='column'>
         
-        <UploadImage onUpload={handleUpload} />
-            {result && (
-              <div></div>
-            )}
+        <UploadImage onUpload={handleUpload} onJointData={handleJointData}/>
+            
         </div>
         <div className='column'>
           <Score/>

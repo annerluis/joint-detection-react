@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
+import session_hash from './session_hash.txt'
 
 
-function UploadImage({ onUpload }) {
+function UploadImage({ onUpload, onJointData }) {
   const [image, setImage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [processedImage, setProcessedImage] = useState(null); 
-  const [jointInfo, setJointInfo] = useState(null);
-  const [testJoint, setTestJoint] = useState(null);
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
     setError(null);
     setProcessedImage(null);
-    setJointInfo(null);
   };
 
   const clearSelection = async () => {
     setImage(null);
     setError(null);
     setProcessedImage(null);
-    setJointInfo(null);
   }
 
   const fileToBase64 = (file) => {//converts uploaded image to base64
@@ -34,45 +31,6 @@ function UploadImage({ onUpload }) {
     });
   };
 
-  //joint scoring functions:
-  const cropImage = (joint) => {//crops each joint from original xray image
-    return new Promise((resolve,reject) => {
-      const jointImage = new Image();
-      //jointImage.src = image.name;
-      console.log(jointImage);
-      console.log(image);
-
-      jointImage.onload = () => {
-        console.log('poop')
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        console.log('peeeeeeee')
-        canvas.width = joint.width;
-        canvas.height = joint.height;
-        console.log('drawing');
-        ctx.drawImage(
-          jointImage,
-          joint.x,
-          joint.y,
-          joint.width,
-          joint.height,
-          0,
-          0,
-          joint.width,
-          joint.height
-        )
-        resolve(canvas.toDataURL('jointImage/png'))
-      }
-      jointImage.onerror = (error) => {
-        reject(new Error('Failed to crop image.'));
-      }
-    })
-  }
-
-  const scoreJoints = async () => {//iterate through each joint, call crop function and send to joint detection api
-
-  }
-
   const handleSubmit = async () => {//submit button
     if (!image) {//if theres no image selected, return
       setError('Please select an image.');
@@ -83,7 +41,22 @@ function UploadImage({ onUpload }) {
     try {
         //session hash is hardcoded for now, will amend later
         const base64ImageOriginal = await fileToBase64(image);
-        const payload = {"fn_index":0,"data": ['"'+base64ImageOriginal+'"'],"session_hash":"knwj8al8dei"}
+        
+        ////////////////////////////////////CHANGES//////////////////////////////////////////////
+        // 1. extract from the text file
+        let sessionHashLocal = "session_hash";
+        fetch(session_hash)
+            .then(res => res.text())
+            .then(text => {
+              sessionHashLocal = text;
+            });
+
+        // 2. store session hash + apiurl as global variables
+        const sessionHash = process.env.REACT_APP_JOINT_DETECTION_SESSION_HASH;
+        const sessionApi = process.env.REACT_APP_JOINT_DETECTION_API;
+        const payload = {"fn_index":0,"data": ['"'+base64ImageOriginal+'"'],"session_hash": sessionHashLocal} // use local file method
+        ////////////////////////////////////CHANGES//////////////////////////////////////////////
+
         const response = await axios.post('https://darylfunggg-xray-hand-joint-detection.hf.space/api/predict/',
         payload,
         {
@@ -94,11 +67,8 @@ function UploadImage({ onUpload }) {
         const { data } = response.data;
         const [imageInBase64, additionalInfo] = data;
         setProcessedImage(imageInBase64);
-        setJointInfo(additionalInfo);
-        onUpload(response.data); 
-        console.log(additionalInfo.MCP[0]);
-        const testJointCrop = await cropImage(additionalInfo.MCP[0]);
-        setTestJoint(testJointCrop);
+        onUpload(base64ImageOriginal);
+        onJointData(additionalInfo); 
       }else {
         setError(response.status);
       }
@@ -129,7 +99,6 @@ function UploadImage({ onUpload }) {
               <img src={processedImage} className='processed-image' alt="Processed" />
             </div>
           )}
-          <img src={testJoint}></img>
         </div>
       </div>
       
