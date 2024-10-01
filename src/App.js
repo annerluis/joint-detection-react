@@ -24,8 +24,6 @@ function App() {
     <div className="App">
       <Header />
       <Instructions/>
-      <img src={image}></img>
-      <p>{JSON.stringify(jointData)}</p>
       <div className='container'>
         <div className='column'>
         

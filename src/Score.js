@@ -1,6 +1,6 @@
 import { TableContainer } from '@mui/material';
 import './App.css';
-import CropImage from './CropImage.js'
+
 import UploadImage from './UploadImage.js';
 import React, { useState } from 'react';
 
