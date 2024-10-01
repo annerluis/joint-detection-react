@@ -1,11 +1,12 @@
 //message listener for worker thread
 self.onmessage = function (event) {
-    const { imageData } = event.data;
-
+    const { image, jointData } = event.data;
+    const result = cropImage(image, jointData);
+    self.postMessage({result})
 }
 
 //crop function
-const cropImage = (jointData, image) => {//crops each joint from original xray image
+const cropImage = (image, jointData) => {//crops each joint from original xray image
     return new Promise ((resolve,reject) => {
         const jointImage = new Image();
         jointImage.src = image;

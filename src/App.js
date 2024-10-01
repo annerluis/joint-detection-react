@@ -1,6 +1,6 @@
 import './App.css';
 import Header from './Header.js';
-import UploadImage from './UploadImage';
+import UploadImage from './UploadImage.js';
 import React, { useState } from 'react';
 import Score from './Score.js';
 import Instructions from './Instructions.js';
@@ -24,6 +24,7 @@ function App() {
     <div className="App">
       <Header />
       <Instructions/>
+
       <div className='container'>
         <div className='column'>
         
@@ -31,7 +32,7 @@ function App() {
             
         </div>
         <div className='column'>
-          <Score/>
+          <Score image ={image} jointData={jointData}/>
         </div>
       </div>
     </div>
