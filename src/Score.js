@@ -1,36 +1,87 @@
 import './App.css';
 import React, { useState } from 'react';
+import CropWorker from './cropWorker.worker.js';
 
 
-function Score({ image, JointData }){
-    const cropWorker = new Worker(new URL('./cropWorker.js', import.meta.url));
+function Score({ image, jointData }){//original image and array of joints
+    const [croppedImage, setCroppedImage] = useState(null);  
+    const [loading, setLoading] = useState(false);  
 
-    function scoreJoints(){
-        return new Promise((resolve, reject) => {
-            cropWorker.onmessage = function(e) {
-                
-            }
-        })
-    }
-    /*
-    const scoreButton = async () => {
-        const testJoint = JointData.MCP[0];
+    const cropImage = () => {
+        const testJoint = jointData.MCP[0];
+        if (image && testJoint) {
+            setLoading(true);
+            const cropWorker = new CropWorker();
 
-        cropImage(image,testJoint)
-            .then(croppedImage => {
-                console.log(croppedImage);
-                const imgElement = document.createElement('img');
-                imgElement.src = croppedImage;
-                document.body.appendChild(imgElement);
-            })
-            .catch(error => {
-                console.error("Error cropping image: ",error);
+            cropWorker.onmessage = (event) => {
+                setCroppedImage(event.data.croppedImage);
+                setLoading(false);
+                cropWorker.terminate();
+            };
+            cropWorker.onerror = (error) => {
+                console.error('Error in cropWorker: ', error);
+                setLoading(false);
+                cropWorker.terminate();
+            };
+        } else {
+            alert('Please upload an image first.');
+        }
+    };
+
+    async function sendToFingerApi(croppedImage){
+        const url = 'https://sqbislam-rajointscoreprediction.hf.space/predict/fingers';
+        const formData = new FormData();
+        formData.append('file',croppedImage);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'accept' : 'application/json',
+                },
+                body: formData,
             });
+            if (!response.ok){
+                throw new Error('Failed to send file to API');
+            }
+            const data = await response.json();
+            return data;
+
+        } catch(error){
+            console.error('Error during API call: ',error)
+            throw error;
+        }
     }
-*/
-    const scoreButton = async() => {
+    async function sentToWristApi(croppedImage){
 
     }
+
+    async function scoreJoints(image, jointDataArray){
+        try {
+            const pipData = jointDataArray.PIP;
+            /*
+            const mcpData = jointDataArray.MCP;
+            const ulnaData = jointDataArray.Ulna;
+            const radiusData = jointDataArray.Wrist;
+            */
+            
+            const cropPipPromises = pipData.map(pip => cropImage(image,pip));
+            
+            const croppedPips = await Promise.all(cropPipPromises);
+
+            const apiPipPromises = croppedPips.map(croppedPip => sendToFingerApi(croppedPip));
+
+            const apiPipResponses = await Promise.all(apiPipPromises);
+            
+            const results = [];
+            results.push(apiPipResponses);
+            return results;
+            
+        } catch (error) {
+
+        }
+    };
+
     const tableData = [
         {id: 0, Type: 'MCP', Erosion: 0, Narrowing: 5, Total: 5},
         {id: 1, Type: 'MCP', Erosion: 3, Narrowing: 0, Total: 3},
@@ -44,12 +95,14 @@ function Score({ image, JointData }){
 
     return (
         <div>
-            <button onClick={scoreButton}>
+            <button onClick={cropImage}>
                 {'Score joints'}
             </button>
             <button>
                 {'Clear Scores'}
             </button>
+            {loading && <p>Processing image...</p>}
+            <img src={croppedImage}></img>
             <div>
             <h2>Score Predictions</h2>
       <table style={{ width: '90%', borderCollapse: 'collapse' }}>
